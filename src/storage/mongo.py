@@ -1,4 +1,5 @@
 from typing import Iterable, List
+
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
@@ -31,4 +32,3 @@ class MongoAdapter:
 
     def clean_db(self):
         self.competitions.delete_many({})
-        

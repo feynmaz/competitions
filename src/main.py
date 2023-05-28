@@ -1,27 +1,12 @@
-from fastapi import FastAPI, Request
-from fastapi import FastAPI, File, UploadFile
-from fastapi.templating import Jinja2Templates
-from fastapi.responses import RedirectResponse
-import pandas as pd
-from src.models.competition import Competition
 import hashlib
 
-from src.storage.mongo import MongoAdapter
+import pandas as pd
+from fastapi import FastAPI, File, Request, UploadFile
+from fastapi.responses import RedirectResponse
+from fastapi.templating import Jinja2Templates
 
-months = {
-    "январь": 1,
-    "февраль": 2,
-    "март": 3,
-    "апрель": 4,
-    "май": 5,
-    "июнь": 6,
-    "июль": 7,
-    "август": 8,
-    "сентябрь": 9,
-    "октябрь": 10,
-    "ноябрь": 11,
-    "декабрь": 12,
-}
+from src.models.competition import Competition
+from src.storage.mongo import MongoAdapter
 
 app = FastAPI()
 
