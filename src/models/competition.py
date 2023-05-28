@@ -14,5 +14,5 @@ class Competition(BaseModel):
     date: datetime
     level: str
     name: str
-    position: str
+    position: int
     course: Optional[int]

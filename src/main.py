@@ -1,8 +1,8 @@
 import hashlib
-
+from datetime import datetime
 import pandas as pd
 from fastapi import FastAPI, File, Request, UploadFile
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 
 from src.models.competition import Competition
@@ -49,7 +49,7 @@ def upload(file: UploadFile = File(...)):
             sport=record["Вид спорта"],
             level=record["Уровень соревнований"],
             name=record["Название соревнований"],
-            position=record["Место"],
+            position=record["Место"] if record["Место"] else 0,
             course=record["Курс"],
         )
         competitions.append(competition)
@@ -62,3 +62,26 @@ def upload(file: UploadFile = File(...)):
 def clean_db():
     mongo.clean_db()
     return RedirectResponse(url="/")
+
+
+@app.get("/report")
+def get_report(
+    request: Request,
+    date_from: str = "",
+    date_to: str = "",
+    position: int = 0,
+    level: str = "",
+):
+    competitions = mongo.get_competitions(
+        date_from=date_from,
+        date_to=date_to,
+        position=position,
+        level=level,
+    )
+    return templates.TemplateResponse(
+        "filtered.html",
+        {
+            "request": request,
+            "competitions": competitions,
+        },
+    )
