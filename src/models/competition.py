@@ -10,9 +10,10 @@ class Competition(BaseModel):
     student_sex: Optional[str]
     institute: str
     group: str
-    sport: str
-    date: datetime
-    level: str
-    name: str
-    position: int
+    sport: Optional[str]
+    date: Optional[datetime]
+    level: Optional[str]
+    name: Optional[str]
+    position: Optional[int]
     course: Optional[int]
+    count_participation: Optional[int]

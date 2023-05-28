@@ -17,37 +17,72 @@ class MongoAdapter:
 
         self.competitions = client.competitions.competitions
 
-    def get_competitions(
+    def get_competitions(self) -> Iterable[Competition]:
+        competitions = []
+
+        records = self.competitions.find(filter)
+        for record in records:
+            competition = Competition.parse_obj(record)
+            competitions.append(competition)
+
+        return competitions
+
+    def get_filtered(
         self,
         date_from: str = "",
         date_to: str = "",
         position: int = 0,
         level: str = "",
-    ) -> Iterable[Competition]:
-        query = {}
+    ):
+        filter = {}
 
         if date_from:
             date_from_dt = datetime.strptime(date_from, "%d.%m.%Y")
-            query["date"] = {"$gte": date_from_dt}
+            filter["date"] = {"$gte": date_from_dt}
 
         if date_to:
             date_to_dt = datetime.strptime(date_to, "%d.%m.%Y")
-            if "date" in query:
-                query["date"] = query["date"] | {"$lte": date_to_dt}
+            if "date" in filter:
+                filter["date"] = filter["date"] | {"$lte": date_to_dt}
             else:
-                query["date"] = {"$lte": date_to_dt}
+                filter["date"] = {"$lte": date_to_dt}
 
         if position != 0:
-            query["position"] = position
+            filter["position"] = position
 
         if level:
-            query["level"] = level
+            filter["level"] = level
+
+        pipeline = [
+            # {"$match": filter},
+            {
+                "$group": {
+                    "_id": {
+                        "student_id": "$student_id",
+                        "student_name": "$student_name",
+                        "student_sex": "$student_sex",
+                        "institute": "$institute",
+                        "group": "$group",
+                        "course": "$course",
+                    },
+                    "count": {"$sum": 1},
+                },
+            },
+        ]
+        records = self.competitions.aggregate(pipeline)
 
         competitions = []
-
-        records = self.competitions.find(query)
         for record in records:
-            competition = Competition.parse_obj(record)
+            fields = record.get("_id")
+            competition = Competition(
+                student_id=fields["student_id"],
+                student_name=fields["student_name"],
+                student_sex=fields["student_sex"],
+                institute=fields["institute"],
+                group=fields["group"],
+                course=fields["course"],
+                count_participation=record["count"],
+            )
             competitions.append(competition)
 
         return competitions
