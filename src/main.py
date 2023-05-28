@@ -71,3 +71,9 @@ def upload(file: UploadFile = File(...)):
 
     mongo.save_competitions(competitions)
     return RedirectResponse(url="/", status_code=302)
+
+
+@app.get("/clean_db")
+def clean_db():
+    mongo.clean_db()
+    return RedirectResponse(url="/")

@@ -6,10 +6,15 @@
     <input type="file" name="file">
     <button type="submit" class="btn btn-primary">Загрузить файл</button>
 </form>
-
+<br>
+<br>
+<a type="button" class="btn btn-danger" href="/clean_db">Очистить базу данных</a>
+<br>
+<br>
 <table class="table table-bordered">
     <thead>
         <tr>
+            <th scope="col">№</th>
             <th scope="col">Идентификатор студента</th>
             <th scope="col">ФИО</th>
             <th scope="col">Пол</th>
@@ -26,6 +31,7 @@
     <tbody>
         {% for competition in competitions %}
         <tr>
+            <td>{{loop.index}}</td>
             <td>{{competition.student_id}}</td>
             <td>{{competition.student_name}}</td>
             <td>{{competition.student_sex}}</td>

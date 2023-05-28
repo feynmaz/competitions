@@ -28,3 +28,7 @@ class MongoAdapter:
     def save_competitions(self, competitons: Iterable[Competition]):
         records = [item.dict() for item in competitons]
         result = self.competitions.insert_many(records)
+
+    def clean_db(self):
+        self.competitions.delete_many({})
+        
