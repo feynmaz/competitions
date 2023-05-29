@@ -2,53 +2,64 @@
 
 {% block content %}
 
-<form method="POST" enctype="multipart/form-data">
+<form class="import-form">
     <input type="file" name="file">
     <button type="submit" class="btn btn-primary">Загрузить файл</button>
 </form>
+
+<form class="report-form">
+    <div class="datetime">
+        <input type="text" name="date_from">
+        <span>До</span>
+        <input type="text" name="date_to">
+    </div>
+    <button type="submit" class="btn btn-primary">Получить отчет</button>
+</form>
+</div>
 <br>
 <br>
 <a type="button" class="btn btn-danger" href="/clean_db">Очистить базу данных</a>
 <br>
 <br>
-<table class="table table-bordered">
-    <thead>
-        <tr>
-            <th scope="col">№</th>
-            <th scope="col">Идентификатор студента</th>
-            <th scope="col">ФИО</th>
-            <th scope="col">Пол</th>
-            <th scope="col">Институт</th>
-            <th scope="col">Группа</th>
-            <th scope="col">Вид спорта</th>
-            <th scope="col">Дата</th>
-            <th scope="col">Уровень соревнования</th>
-            <th scope="col">Название соревнования</th>
-            <th scope="col">Место</th>
-            <th scope="col">Курс</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for competition in competitions %}
-        <tr>
-            <td>{{loop.index}}</td>
-            <td>{{competition.student_id}}</td>
-            <td>{{competition.student_name}}</td>
-            <td>{{competition.student_sex}}</td>
-            <td>{{competition.institute}}</td>
-            <td>{{competition.group}}</td>
-            <td>{{competition.sport}}</td>
-            <td>
-                {{competition.date.strftime('%d.%m.%Y')}}
-            </td>
-            <td>{{competition.level}}</td>
-            <td>{{competition.name}}</td>
-            <td>{{competition.position}}</td>
-            <td>{{competition.course}}</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="table-wrapper">
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th scope="col">№</th>
+                <th scope="col">Идентификатор студента</th>
+                <th scope="col">ФИО</th>
+                <th scope="col">Пол</th>
+                <th scope="col">Институт</th>
+                <th scope="col">Группа</th>
+                <th scope="col">Вид спорта</th>
+                <th scope="col">Дата</th>
+                <th scope="col">Уровень соревнования</th>
+                <th scope="col">Название соревнования</th>
+                <th scope="col">Место</th>
+                <th scope="col">Курс</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for competition in competitions %}
+            <tr>
+                <td>{{loop.index}}</td>
+                <td>{{competition.student_id}}</td>
+                <td>{{competition.student_name}}</td>
+                <td>{{competition.student_sex}}</td>
+                <td>{{competition.institute}}</td>
+                <td>{{competition.group}}</td>
+                <td>{{competition.sport}}</td>
+                <td>
+                    {{competition.date.strftime('%d.%m.%Y')}}
+                </td>
+                <td>{{competition.level}}</td>
+                <td>{{competition.name}}</td>
+                <td>{{competition.position}}</td>
+                <td>{{competition.course}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 
-<script src="/static/scripts/script.js"></script>
 {% endblock content %}
