@@ -4,8 +4,8 @@ from datetime import datetime
 import pandas as pd
 from fastapi import FastAPI, File, Request, UploadFile
 from fastapi.responses import JSONResponse, RedirectResponse
-from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
 
 from src.models.competition import Competition
 from src.storage.mongo import MongoAdapter
@@ -30,7 +30,7 @@ def index(request: Request):
     )
 
 
-@app.post("/")
+@app.post(path="/", status_code=302)
 def upload(file: UploadFile = File(...)):
     contents = file.file.read()
     df = pd.read_excel(io=contents)
@@ -54,7 +54,6 @@ def upload(file: UploadFile = File(...)):
             name=record["Название соревнований"],
             position=record["Место"] if record["Место"] else 0,
             course=record["Курс"],
-            count_participation=0,
         )
         competitions.append(competition)
 
@@ -76,7 +75,7 @@ def get_report(
     position: int = 0,
     level: str = "",
 ):
-    competitions = mongo.get_filtered(
+    student_infos = mongo.get_filtered(
         date_from=date_from,
         date_to=date_to,
         position=position,
@@ -86,6 +85,6 @@ def get_report(
         "filtered.html",
         {
             "request": request,
-            "competitions": competitions,
+            "student_infos": student_infos,
         },
     )

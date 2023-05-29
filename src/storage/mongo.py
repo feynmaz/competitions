@@ -5,6 +5,7 @@ from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
 from src.models.competition import Competition
+from src.models.http.student_info import StudentInfo
 
 
 class MongoAdapter:
@@ -33,7 +34,7 @@ class MongoAdapter:
         date_to: str = "",
         position: int = 0,
         level: str = "",
-    ):
+    ) -> list[StudentInfo]:
         filter = {}
 
         if date_from:
@@ -54,7 +55,7 @@ class MongoAdapter:
             filter["level"] = level
 
         pipeline = [
-            # {"$match": filter},
+            {"$match": filter},
             {
                 "$group": {
                     "_id": {
@@ -71,10 +72,10 @@ class MongoAdapter:
         ]
         records = self.competitions.aggregate(pipeline)
 
-        competitions = []
+        student_infos = []
         for record in records:
             fields = record.get("_id")
-            competition = Competition(
+            student_info = StudentInfo(
                 student_id=fields["student_id"],
                 student_name=fields["student_name"],
                 student_sex=fields["student_sex"],
@@ -83,9 +84,9 @@ class MongoAdapter:
                 course=fields["course"],
                 count_participation=record["count"],
             )
-            competitions.append(competition)
+            student_infos.append(student_info)
 
-        return competitions
+        return student_infos
 
     def save_competitions(self, competitons: Iterable[Competition]):
         records = [item.dict() for item in competitons]

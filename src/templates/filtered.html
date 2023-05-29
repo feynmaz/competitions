@@ -13,16 +13,16 @@
         </tr>
     </thead>
     <tbody>
-        {% for competition in competitions %}
+        {% for student_info in student_infos %}
         <tr>
             <td>{{loop.index}}</td>
-            <td>{{competition.student_id}}</td>
-            <td>{{competition.student_name}}</td>
-            <td>{{competition.student_sex}}</td>
-            <td>{{competition.institute}}</td>
-            <td>{{competition.group}}</td>
-            <td>{{competition.course}}</td>
-            <td>{{competition.count_participation}}</td>
+            <td>{{student_info.student_id}}</td>
+            <td>{{student_info.student_name}}</td>
+            <td>{{student_info.student_sex}}</td>
+            <td>{{student_info.institute}}</td>
+            <td>{{student_info.group}}</td>
+            <td>{{student_info.course}}</td>
+            <td>{{student_info.count_participation}}</td>
         </tr>
         {% endfor %}
     </tbody>
