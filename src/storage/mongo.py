@@ -20,7 +20,7 @@ class MongoAdapter:
     def get_competitions(self) -> Iterable[Competition]:
         competitions = []
 
-        records = self.competitions.find(filter)
+        records = self.competitions.find({})
         for record in records:
             competition = Competition.parse_obj(record)
             competitions.append(competition)

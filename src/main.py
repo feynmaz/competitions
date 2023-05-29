@@ -5,6 +5,7 @@ import pandas as pd
 from fastapi import FastAPI, File, Request, UploadFile
 from fastapi.responses import JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 
 from src.models.competition import Competition
 from src.storage.mongo import MongoAdapter
@@ -12,6 +13,7 @@ from src.storage.mongo import MongoAdapter
 app = FastAPI()
 
 templates = Jinja2Templates(directory="src/templates")
+app.mount("/static", StaticFiles(directory="src/static"), name="static")
 
 mongo = MongoAdapter()
 
