@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Iterable, List
+from typing import Iterable
 
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
@@ -90,7 +90,7 @@ class MongoAdapter:
 
     def save_competitions(self, competitons: Iterable[Competition]):
         records = [item.dict() for item in competitons]
-        result = self.competitions.insert_many(records)
+        self.competitions.insert_many(records)
 
     def clean_db(self):
         self.competitions.delete_many({})

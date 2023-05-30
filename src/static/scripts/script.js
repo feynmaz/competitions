@@ -70,4 +70,3 @@ class Main {
 }
 
 new Main();
-
