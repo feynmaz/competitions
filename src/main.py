@@ -1,41 +1,56 @@
 import hashlib
 
 import pandas as pd
-from fastapi import FastAPI
-from fastapi import File
-from fastapi import Request
-from fastapi import UploadFile
-from fastapi.responses import RedirectResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
+from jinja2 import Environment
+from jinja2 import PackageLoader
+from jinja2 import select_autoescape
+from sanic import redirect
+from sanic import Request
+from sanic import Sanic
+from sanic import text
+from sanic_ext import render
 
 from src.models.competition import Competition
 from src.storage.mongo import MongoAdapter
 
-app = FastAPI()
 
-templates = Jinja2Templates(directory="src/templates")
-app.mount("/static", StaticFiles(directory="src/static"), name="static")
+jinja_env = Environment(
+    loader=PackageLoader("src"),
+    autoescape=select_autoescape(),
+    enable_async=True,
+)
+
+app = Sanic("SIBADI_competitions")
+
+app.static(
+    uri="/static",
+    file_or_directory="src/static",
+    name="static",
+    directory_view=True,
+)
 
 mongo = MongoAdapter()
 
 
 @app.get("/")
-def index(request: Request):
+async def index(request: Request):
     competitions = mongo.get_competitions()
-    return templates.TemplateResponse(
-        "index.html",
-        {
+    return await render(
+        template_name=jinja_env.get_template("index.html"),
+        context={
             "request": request,
             "competitions": competitions,
         },
     )
 
 
-@app.post(path="/", status_code=302)
-def upload(file: UploadFile = File(...)):
-    contents = file.file.read()
-    df = pd.read_excel(io=contents)
+@app.post("/")
+async def upload(request: Request):
+    upload_file = request.files.get("file")
+    if not upload_file or not upload_file.body:
+        return text(body="No file uploaded", status=400)
+
+    df = pd.read_excel(io=upload_file.body)
 
     competitions = []
     for _, row in df.iterrows():
@@ -60,32 +75,33 @@ def upload(file: UploadFile = File(...)):
         competitions.append(competition)
 
     mongo.save_competitions(competitions)
-    return RedirectResponse(url="/", status_code=302)
+    return redirect(to="/")
 
 
 @app.get("/clean_db")
-def clean_db():
+async def clean_db(request: Request):
     mongo.clean_db()
-    return RedirectResponse(url="/")
+    return redirect(to="/")
 
 
 @app.get("/report")
-def get_report(
-    request: Request,
-    date_from: str = "",
-    date_to: str = "",
-    position: int = 0,
-    level: str = "",
-):
+async def get_report(request: Request):
+    args = dict(request.args)
+
+    date_from: str = args.get("date_from", "")
+    date_to: str = args.get("date_to", "")
+    position: list[str] = args.get("position", [])
+    level: list[str] = args.get("level", [])
+
     student_infos = mongo.get_filtered(
         date_from=date_from,
         date_to=date_to,
         position=position,
         level=level,
     )
-    return templates.TemplateResponse(
-        "filtered.html",
-        {
+    return await render(
+        template_name=jinja_env.get_template("filtered.html"),
+        context={
             "request": request,
             "student_infos": student_infos,
         },

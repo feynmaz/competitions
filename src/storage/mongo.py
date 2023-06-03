@@ -30,10 +30,10 @@ class MongoAdapter:
 
     def get_filtered(
         self,
-        date_from: str = "",
-        date_to: str = "",
-        position: int = 0,
-        level: str = "",
+        date_from: str,
+        date_to: str,
+        position: list[str],
+        level: list[str],
     ) -> list[StudentInfo]:
         filter = {}
 
@@ -48,11 +48,11 @@ class MongoAdapter:
             else:
                 filter["date"] = {"$lte": date_to_dt}
 
-        if position != 0:
-            filter["position"] = position
+        if position:
+            filter["position"] = {"$in": position}
 
         if level:
-            filter["level"] = level
+            filter["level"] = {"$in": level}
 
         pipeline = [
             {"$match": filter},
