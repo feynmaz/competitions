@@ -67,7 +67,7 @@ async def upload(request: Request):
             group=record["Группа"],
             date=date,
             sport=record["Вид спорта"],
-            level=record["Уровень соревнований"],
+            level=str(record["Уровень соревнований"]).lower(),
             name=record["Название соревнований"],
             position=record["Место"] if record["Место"] else 0,
             course=record["Курс"],
@@ -88,10 +88,25 @@ async def clean_db(request: Request):
 async def get_report(request: Request):
     args = dict(request.args)
 
-    date_from: str = args.get("date_from", "")
-    date_to: str = args.get("date_to", "")
-    position: list[str] = args.get("position", [])
-    level: list[str] = args.get("level", [])
+    date_from: str = None
+    date_from_raw = args.get("date_from", [])
+    if date_from_raw:
+        date_from = date_from_raw[0]
+
+    date_to: str = None
+    date_to_raw = args.get("date_to", [])
+    if date_to_raw:
+        date_to = date_to_raw[0]
+
+    level: str = None
+    level_raw = args.get("level", [])
+    if level_raw:
+        level = level_raw[0]
+
+    position: str = None
+    position_raw = args.get("position", [])
+    if position_raw:
+        position = position_raw[0]
 
     student_infos = mongo.get_filtered(
         date_from=date_from,
@@ -99,6 +114,7 @@ async def get_report(request: Request):
         position=position,
         level=level,
     )
+
     return await render(
         template_name=jinja_env.get_template("filtered.html"),
         context={

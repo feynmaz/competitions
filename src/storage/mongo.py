@@ -33,27 +33,32 @@ class MongoAdapter:
         self,
         date_from: str,
         date_to: str,
-        position: list[str],
-        level: list[str],
+        position: str,
+        level: str,
     ) -> list[StudentInfo]:
         filter = {}
 
         if date_from:
-            date_from_dt = datetime.strptime(date_from[0], settings.date_format)
+            date_from_dt = datetime.strptime(date_from, settings.date_format)
             filter["date"] = {"$gte": date_from_dt}
 
         if date_to:
-            date_to_dt = datetime.strptime(date_to[0], settings.date_format)
+            date_to_dt = datetime.strptime(date_to, settings.date_format)
             if "date" in filter:
                 filter["date"] = filter["date"] | {"$lte": date_to_dt}
             else:
                 filter["date"] = {"$lte": date_to_dt}
 
         if position:
-            filter["position"] = {"$in": [int(x) for x in position]}
+            sign = position[0]
+            value = int(position[1])
+            if sign == ">":
+                filter["position"] = {"$gt": value}
+            elif sign == "<":
+                filter["position"] = {"$lt": value}
 
         if level:
-            filter["level"] = {"$in": level}
+            filter["level"] = level
 
         pipeline = [
             {"$match": filter},

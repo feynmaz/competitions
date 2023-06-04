@@ -15,23 +15,27 @@ def test_healthcheck(client: SanicTestClient):
     assert response.status == 200
 
 
-def test_get_report(client: SanicTestClient):
+def test_get_report_empty(client: SanicTestClient):
     _, response = client.get("/report")
     assert response.status == 200
 
+
+def test_get_report_date(client: SanicTestClient):
     _, response = client.get("/report?date_from=03.02.2021")
     assert response.status == 200
 
     _, response = client.get("/report?date_from=03.02.2021&date_to=04.02.2021")
     assert response.status == 200
 
-    _, response = client.get("/report?date_from=03.02.2021&date_to=04.02.2021&position=1")
+
+def test_get_report_position(client: SanicTestClient):
+    _, response = client.get("/report?position=>3")
     assert response.status == 200
 
-    _, response = client.get("/report?date_from=03.02.2021&date_to=04.02.2021&position=1&position=2")
+    _, response = client.get("/report?position=<4")
     assert response.status == 200
 
-    _, response = client.get(
-        "/report?date_from=03.02.2021&date_to=04.02.2021&position=1&position=2&level=внутривузовские"
-    )
+
+def test_get_report_level(client: SanicTestClient):
+    _, response = client.get("/report?level=внутривузовские")
     assert response.status == 200
