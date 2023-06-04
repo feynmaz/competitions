@@ -6,6 +6,7 @@ from pymongo.server_api import ServerApi
 
 from src.models.competition import Competition
 from src.models.http.student_info import StudentInfo
+from src.settings import settings
 
 
 class MongoAdapter:
@@ -38,11 +39,11 @@ class MongoAdapter:
         filter = {}
 
         if date_from:
-            date_from_dt = datetime.strptime(date_from[0], "%d.%m.%Y")
+            date_from_dt = datetime.strptime(date_from[0], settings.date_format)
             filter["date"] = {"$gte": date_from_dt}
 
         if date_to:
-            date_to_dt = datetime.strptime(date_to[0], "%d.%m.%Y")
+            date_to_dt = datetime.strptime(date_to[0], settings.date_format)
             if "date" in filter:
                 filter["date"] = filter["date"] | {"$lte": date_to_dt}
             else:
