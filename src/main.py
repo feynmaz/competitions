@@ -108,11 +108,17 @@ async def get_report(request: Request):
     if position_raw:
         position = position_raw[0]
 
+    name: str = None
+    name_raw = args.get("name", [])
+    if name_raw:
+        name = name_raw[0]
+
     student_infos = mongo.get_filtered(
         date_from=date_from,
         date_to=date_to,
         position=position,
         level=level,
+        name=name,
     )
 
     return await render(
@@ -122,3 +128,8 @@ async def get_report(request: Request):
             "student_infos": student_infos,
         },
     )
+
+
+@app.get("/healthcheck")
+def healthcheck(request: Request):
+    return text("OK")

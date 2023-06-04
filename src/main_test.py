@@ -39,3 +39,8 @@ def test_get_report_position(client: SanicTestClient):
 def test_get_report_level(client: SanicTestClient):
     _, response = client.get("/report?level=внутривузовские")
     assert response.status == 200
+
+
+def test_get_report_name(client: SanicTestClient):
+    _, response = client.get("/report?name=Карлова")
+    assert response.status == 200

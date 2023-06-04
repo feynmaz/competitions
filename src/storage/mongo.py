@@ -35,6 +35,7 @@ class MongoAdapter:
         date_to: str,
         position: str,
         level: str,
+        name: str,
     ) -> list[StudentInfo]:
         filter = {}
 
@@ -59,6 +60,9 @@ class MongoAdapter:
 
         if level:
             filter["level"] = level
+
+        if name:
+            filter["student_name"] = {"$regex": name}
 
         pipeline = [
             {"$match": filter},
