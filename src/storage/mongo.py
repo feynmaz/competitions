@@ -38,11 +38,11 @@ class MongoAdapter:
         filter = {}
 
         if date_from:
-            date_from_dt = datetime.strptime(date_from, "%d.%m.%Y")
+            date_from_dt = datetime.strptime(date_from[0], "%d.%m.%Y")
             filter["date"] = {"$gte": date_from_dt}
 
         if date_to:
-            date_to_dt = datetime.strptime(date_to, "%d.%m.%Y")
+            date_to_dt = datetime.strptime(date_to[0], "%d.%m.%Y")
             if "date" in filter:
                 filter["date"] = filter["date"] | {"$lte": date_to_dt}
             else:
