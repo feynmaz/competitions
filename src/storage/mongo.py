@@ -49,7 +49,7 @@ class MongoAdapter:
                 filter["date"] = {"$lte": date_to_dt}
 
         if position:
-            filter["position"] = {"$in": position}
+            filter["position"] = {"$in": [int(x) for x in position]}
 
         if level:
             filter["level"] = {"$in": level}
