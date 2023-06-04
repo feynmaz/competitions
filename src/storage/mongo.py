@@ -62,7 +62,7 @@ class MongoAdapter:
             filter["level"] = level
 
         if name:
-            filter["student_name"] = {"$regex": name}
+            filter["student_name"] = {"$regex": name, "$options": "i"}
 
         pipeline = [
             {"$match": filter},
