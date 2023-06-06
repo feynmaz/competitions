@@ -3,14 +3,19 @@ class Main {
         this.contentWrapper = document.querySelector(".content-wrapper");
         this.importForm = document.querySelector(".import-form");
         this.reportForm = document.querySelector(".filter-form");
+        this.fileInput = document.querySelector(".import-form__input");
+        this.importButton = document.querySelector(".import-form__button");
 
+        this.loader = document.querySelector(".loader");
+
+        this.inputName = document.querySelector(".filter__name");
         this.dateFromInput = document.querySelector(".filter__date-from");
         this.dateToInput = document.querySelector(".filter__date-to");
-        this.levelSelect = document.querySelector(".filter__level");
-        this.positionSelect = document.querySelector(".filter__position");
+        this.levelSelectWrapper = document.querySelector(".filter__level-wrapper")
+        this.positionSelectWrapper = document.querySelector(".filter__position-wrapper")
         this.filterButton = document.querySelector(".filter__button");
+        this.cleanFilterButton = document.querySelector(".filter-form__clean-button");
         this.cleanButton = document.querySelector(".clean-button");
-
         this.dateRangePickerElement = document.querySelector('.datetime');
 
         this.createInstances();
@@ -21,14 +26,40 @@ class Main {
         this.dateRangePicker = new DateRangePicker(this.dateRangePickerElement, {
             format: "dd.mm.yyyy"
         });
-        NiceSelect.bind(this.levelSelect, {searchable: true});
-        NiceSelect.bind(this.positionSelect, {searchable: true});
+        this.levelSelect = NiceSelect.bind(document.querySelector(".filter__level"), {searchable: true, searchtext: "Найти"});
+        this.positionSelect = NiceSelect.bind(document.querySelector(".filter__position"), {searchable: true, searchtext: "Найти"});
+    }
+
+    destroyInstances() {
+        this.levelSelect.destroy();
+        this.positionSelect.destroy();
     }
 
     hangEvents() {
         this.importForm.addEventListener("submit", (event) => this.handleSubmitImportForm(event));
+        this.fileInput.addEventListener("change", () => this.setDisabledImportButton(false))
         this.reportForm.addEventListener("submit", (event) => this.handleSubmitReportForm(event));
+        this.cleanFilterButton.addEventListener("click", () => this.resetFilter())
         this.cleanButton.addEventListener("click", () => this.cleanDb());
+    }
+
+    setDisabledImportButton(state) {
+        this.importButton.disabled = state;
+    }
+
+    cleanFileInput() {
+        this.setDisabledImportButton(true);
+        this.fileInput.value = "";
+    }
+
+    resetFilter() {
+        this.inputName.value = "";
+        this.levelSelectWrapper.querySelector('li.option[data-value=""]').click();
+        this.positionSelectWrapper.querySelector('li.option[data-value=""]').click();
+        this.destroyInstances();
+        this.createInstances();
+        this.dateFromInput.value = ""
+        this.dateToInput.value = ""
     }
 
     handleSubmitImportForm(event) {
@@ -42,7 +73,10 @@ class Main {
         const params = new URLSearchParams();
         const formData = new FormData(this.reportForm);
         Array.from(formData.entries()).forEach(field => {
-            params.append(field[0], field[1]);
+            const [fieldName, value] = field;
+            if (value) {
+                params.append(fieldName, value);
+            }
         })
         this.getReport(params.toString());
     }
@@ -54,7 +88,11 @@ class Main {
                 method: "POST",
                 body: formData,
             },
-            onSuccess: () => alert("Файл успешно импортирован"),
+            onSuccess: () => {
+                alert("Файл успешно импортирован");
+                this.cleanFileInput();
+                this.resetFilter();
+            },
             onError: () => alert("Ошибка импорта")
         })
     }
@@ -70,6 +108,10 @@ class Main {
     }
 
     cleanDb() {
+        const result = confirm("Вы действительно хотите очистить базу данных?");
+        if (!result) {
+            return;
+        }
         this.makeRequest({
             url: "/clean_db",
             onSuccess: () => alert("База данных успешно очищена"),
@@ -78,16 +120,25 @@ class Main {
     }
 
     makeRequest({ url, options = {}, onSuccess = () => {}, onError }) {
+        this.setLoading(true)
         fetch(url, options)
-            .then((response) => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, "text/html");
-                const newContentWrapper = doc.querySelector(".content-wrapper");
-                this.contentWrapper.innerHTML = newContentWrapper.innerHTML;
-                onSuccess();
-            })
-            .catch(() => onError())
+        .then((response) => response.text())
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, "text/html");
+            const newContentWrapper = doc.querySelector(".content-wrapper");
+            this.contentWrapper.innerHTML = newContentWrapper.innerHTML;
+            onSuccess();
+        })
+        .catch(() => onError())
+        .finally(() => this.setLoading(false))
+    }
+
+    setLoading(state) {
+        if (state) {
+            return this.loader.classList.add("loader-active");
+        }
+        this.loader.classList.remove("loader-active");
     }
 }
 
