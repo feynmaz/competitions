@@ -10,12 +10,10 @@ from src.settings import settings
 
 
 class MongoAdapter:
-    def __init__(self):
-        uri = "mongodb+srv://competitionsdb:2CnKp7PAWeup2MzQ@cluster0.fhmjsxn.mongodb.net/?retryWrites=true&w=majority"
-
+    def __init__(self, mongo_uri: str):
         # Create a new client and connect to the server
-        client = MongoClient(uri, server_api=ServerApi("1"))
-        client.admin.command("ping")
+        client = MongoClient(mongo_uri, server_api=ServerApi('1'))
+        client.admin.command('ping')
 
         self.competitions = client.competitions.competitions
 
@@ -41,42 +39,42 @@ class MongoAdapter:
 
         if date_from:
             date_from_dt = datetime.strptime(date_from, settings.date_format)
-            filter["date"] = {"$gte": date_from_dt}
+            filter['date'] = {'$gte': date_from_dt}
 
         if date_to:
             date_to_dt = datetime.strptime(date_to, settings.date_format)
-            if "date" in filter:
-                filter["date"] = filter["date"] | {"$lte": date_to_dt}
+            if 'date' in filter:
+                filter['date'] = filter['date'] | {'$lte': date_to_dt}
             else:
-                filter["date"] = {"$lte": date_to_dt}
+                filter['date'] = {'$lte': date_to_dt}
 
         if position:
             sign = position[0]
             value = int(position[1])
-            if sign == ">":
-                filter["position"] = {"$gt": value}
-            elif sign == "<":
-                filter["position"] = {"$lt": value}
+            if sign == '>':
+                filter['position'] = {'$gt': value}
+            elif sign == '<':
+                filter['position'] = {'$lt': value}
 
         if level:
-            filter["level"] = level
+            filter['level'] = level
 
         if name:
-            filter["student_name"] = {"$regex": name, "$options": "i"}
+            filter['student_name'] = {'$regex': name, '$options': 'i'}
 
         pipeline = [
-            {"$match": filter},
+            {'$match': filter},
             {
-                "$group": {
-                    "_id": {
-                        "student_id": "$student_id",
-                        "student_name": "$student_name",
-                        "student_sex": "$student_sex",
-                        "institute": "$institute",
-                        "group": "$group",
-                        "course": "$course",
+                '$group': {
+                    '_id': {
+                        'student_id': '$student_id',
+                        'student_name': '$student_name',
+                        'student_sex': '$student_sex',
+                        'institute': '$institute',
+                        'group': '$group',
+                        'course': '$course',
                     },
-                    "count": {"$sum": 1},
+                    'count': {'$sum': 1},
                 },
             },
         ]
@@ -84,15 +82,15 @@ class MongoAdapter:
 
         student_infos = []
         for record in records:
-            fields = record.get("_id")
+            fields = record.get('_id')
             student_info = StudentInfo(
-                student_id=fields["student_id"],
-                student_name=fields["student_name"],
-                student_sex=fields["student_sex"],
-                institute=fields["institute"],
-                group=fields["group"],
-                course=fields["course"],
-                count_participation=record["count"],
+                student_id=fields['student_id'],
+                student_name=fields['student_name'],
+                student_sex=fields['student_sex'],
+                institute=fields['institute'],
+                group=fields['group'],
+                course=fields['course'],
+                count_participation=record['count'],
             )
             student_infos.append(student_info)
 
