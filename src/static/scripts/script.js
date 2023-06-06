@@ -1,8 +1,15 @@
 class Main {
     constructor() {
-        this.tableWrapper = document.querySelector('.table-wrapper');
-        this.importForm = document.querySelector('.import-form');
-        this.reportForm = document.querySelector('.report-form');
+        this.contentWrapper = document.querySelector(".content-wrapper");
+        this.importForm = document.querySelector(".import-form");
+        this.reportForm = document.querySelector(".filter-form");
+
+        this.dateFromInput = document.querySelector(".filter__date-from");
+        this.dateToInput = document.querySelector(".filter__date-to");
+        this.levelSelect = document.querySelector(".filter__level");
+        this.positionSelect = document.querySelector(".filter__position");
+        this.filterButton = document.querySelector(".filter__button");
+        this.cleanButton = document.querySelector(".clean-button");
 
         this.dateRangePickerElement = document.querySelector('.datetime');
 
@@ -12,13 +19,16 @@ class Main {
 
     createInstances() {
         this.dateRangePicker = new DateRangePicker(this.dateRangePickerElement, {
-            format: 'dd.mm.yyyy'
-        })
+            format: "dd.mm.yyyy"
+        });
+        NiceSelect.bind(this.levelSelect, {searchable: true});
+        NiceSelect.bind(this.positionSelect, {searchable: true});
     }
 
     hangEvents() {
-        this.importForm.addEventListener('submit', (event) => this.handleSubmitImportForm(event));
-        this.reportForm.addEventListener('submit', (event) => this.handleSubmitReportForm(event));
+        this.importForm.addEventListener("submit", (event) => this.handleSubmitImportForm(event));
+        this.reportForm.addEventListener("submit", (event) => this.handleSubmitReportForm(event));
+        this.cleanButton.addEventListener("click", () => this.cleanDb());
     }
 
     handleSubmitImportForm(event) {
@@ -29,43 +39,55 @@ class Main {
 
     handleSubmitReportForm(event) {
         event.preventDefault();
+        const params = new URLSearchParams();
         const formData = new FormData(this.reportForm);
-        const params = {};
         Array.from(formData.entries()).forEach(field => {
-            params[field[0]] = field[1]
+            params.append(field[0], field[1]);
         })
-        this.getReport(params);
+        this.getReport(params.toString());
     }
 
     importFile(formData) {
-        const options = {
-            method: 'POST',
-            body: formData,
-        };
-        fetch('/', options)
-            .then((response) => response.text())
-            .then(html => {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(html, 'text/html');
-                const data = doc.querySelector('.table-wrapper');
-                this.tableWrapper.innerHTML = data.innerHTML;
-                alert("Файл успешно загружен")
-            })
-            .catch(() => alert("Ошибка импорта"))
+        this.makeRequest({
+            url: "/",
+            options: { 
+                method: "POST",
+                body: formData,
+            },
+            onSuccess: () => alert("Файл успешно импортирован"),
+            onError: () => alert("Ошибка импорта")
+        })
     }
 
     getReport(params) {
-        let url = "/report";
-        const options = {
-            method: 'GET'
-        };
+        this.makeRequest({
+            url: "/report?" + params,
+            options: { 
+                method: "GET"
+            },
+            onError: () => alert("Ошибка применения фильтра. Попробуйте позже")
+        })
+    }
 
-        url += '?' + new URLSearchParams(params);
+    cleanDb() {
+        this.makeRequest({
+            url: "/clean_db",
+            onSuccess: () => alert("База данных успешно очищена"),
+            onError: () => alert("Ошибка очистки базы данных")
+        })
+    }
 
+    makeRequest({ url, options = {}, onSuccess = () => {}, onError }) {
         fetch(url, options)
-            .then(response => response.text())
-            .then(data => this.tableWrapper.innerHTML = data)
-            .catch(error => console.error(error))
+            .then((response) => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+                const newContentWrapper = doc.querySelector(".content-wrapper");
+                this.contentWrapper.innerHTML = newContentWrapper.innerHTML;
+                onSuccess();
+            })
+            .catch(() => onError())
     }
 }
 
