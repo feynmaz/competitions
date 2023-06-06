@@ -10,11 +10,9 @@ from src.settings import settings
 
 
 class MongoAdapter:
-    def __init__(self):
-        uri = "mongodb+srv://competitionsdb:2CnKp7PAWeup2MzQ@cluster0.fhmjsxn.mongodb.net/?retryWrites=true&w=majority"
-
+    def __init__(self, mongo_uri: str):
         # Create a new client and connect to the server
-        client = MongoClient(uri, server_api=ServerApi("1"))
+        client = MongoClient(mongo_uri, server_api=ServerApi("1"))
         client.admin.command("ping")
 
         self.competitions = client.competitions.competitions

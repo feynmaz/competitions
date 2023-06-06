@@ -11,6 +11,7 @@ from sanic import text
 from sanic_ext import render
 
 from src.models.competition import Competition
+from src.settings import settings
 from src.storage.mongo import MongoAdapter
 
 
@@ -29,7 +30,7 @@ app.static(
     directory_view=True,
 )
 
-mongo = MongoAdapter()
+mongo = MongoAdapter(settings.mongo_uri)
 
 
 @app.get("/")
