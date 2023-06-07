@@ -84,7 +84,7 @@ class Main {
     importFile(formData) {
         this.makeRequest({
             url: "/",
-            options: { 
+            options: {
                 method: "POST",
                 body: formData,
             },
@@ -100,7 +100,7 @@ class Main {
     getReport(params) {
         this.makeRequest({
             url: "/report?" + params,
-            options: { 
+            options: {
                 method: "GET"
             },
             onError: () => alert("Ошибка применения фильтра. Попробуйте позже")

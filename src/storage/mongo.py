@@ -25,6 +25,7 @@ class MongoAdapter:
             competition = Competition.parse_obj(record)
             competitions.append(competition)
 
+        competitions.sort(key=lambda x: x.position)
         return competitions
 
     def get_filtered(
@@ -94,6 +95,7 @@ class MongoAdapter:
             )
             student_infos.append(student_info)
 
+        student_infos.sort(key=lambda x: x.count_participation)
         return student_infos
 
     def save_competitions(self, competitons: Iterable[Competition]):
