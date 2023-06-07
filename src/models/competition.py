@@ -10,3 +10,4 @@ class Competition(Student):
     name: str
     position: int
     course: int
+    created_at: datetime = datetime.now()

@@ -25,7 +25,7 @@ class MongoAdapter:
             competition = Competition.parse_obj(record)
             competitions.append(competition)
 
-        competitions.sort(key=lambda x: x.position)
+        competitions.sort(key=lambda x: x.created_at)
         return competitions
 
     def get_filtered(
