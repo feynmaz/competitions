@@ -1,4 +1,7 @@
 import hashlib
+from datetime import datetime
+from os.path import join
+from typing import Iterable
 
 import pandas as pd
 from jinja2 import Environment
@@ -8,12 +11,13 @@ from sanic import redirect
 from sanic import Request
 from sanic import Sanic
 from sanic import text
+from sanic.response import file
 from sanic_ext import render
 
 from src.models.competition import Competition
+from src.models.http.student_info import StudentInfo
 from src.settings import settings
 from src.storage.mongo import MongoAdapter
-
 
 jinja_env = Environment(
     loader=PackageLoader('src'),
@@ -43,6 +47,19 @@ async def index(request: Request):
             'competitions': competitions,
         },
     )
+
+
+@app.get('/export/index')
+async def export_index(request: Request):
+    competitions = mongo.get_competitions()
+    df = pd.DataFrame.from_records([comp.dict() for comp in competitions])
+
+    now_str = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
+    filename = f'Отчет_{now_str}.xlsx'
+    filepath = join(settings.data_folder, filename)
+    df.to_excel(filepath)
+
+    return await file(filepath, filename=filename)
 
 
 @app.post('/')
@@ -87,6 +104,30 @@ async def clean_db(request: Request):
 
 @app.get('/report')
 async def get_report(request: Request):
+    student_infos = get_student_infos(request)
+    return await render(
+        template_name=jinja_env.get_template('filtered.html'),
+        context={
+            'request': request,
+            'student_infos': student_infos,
+        },
+    )
+
+
+@app.get('/export/report')
+async def export_report(request: Request):
+    student_infos = get_student_infos(request)
+    df = pd.DataFrame.from_records([info.dict() for info in student_infos])
+
+    now_str = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
+    filename = f'Отчет_{now_str}.xlsx'
+    filepath = join(settings.data_folder, filename)
+    df.to_excel(filepath)
+
+    return await file(filepath, filename=filename)
+
+
+def get_student_infos(request: Request) -> Iterable[StudentInfo]:
     args = dict(request.args)
 
     date_from: str = None
@@ -122,13 +163,7 @@ async def get_report(request: Request):
         name=name,
     )
 
-    return await render(
-        template_name=jinja_env.get_template('filtered.html'),
-        context={
-            'request': request,
-            'student_infos': student_infos,
-        },
-    )
+    return student_infos
 
 
 @app.get('/healthcheck')
