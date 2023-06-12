@@ -16,8 +16,10 @@ class Main {
         this.filterButton = document.querySelector(".filter__button");
         this.cleanFilterButton = document.querySelector(".filter-form__clean-button");
         this.cleanButton = document.querySelector(".clean-button");
+        this.exportButton = document.querySelector(".export-button");
         this.dateRangePickerElement = document.querySelector('.datetime');
 
+        this.filterIsApplied = false;
         this.createInstances();
         this.hangEvents();
     }
@@ -39,7 +41,8 @@ class Main {
         this.importForm.addEventListener("submit", (event) => this.handleSubmitImportForm(event));
         this.fileInput.addEventListener("change", () => this.setDisabledImportButton(false))
         this.reportForm.addEventListener("submit", (event) => this.handleSubmitReportForm(event));
-        this.cleanFilterButton.addEventListener("click", () => this.resetFilter())
+        this.cleanFilterButton.addEventListener("click", () => this.handleResetFilterButton())
+        this.exportButton.addEventListener("click", () => this.handleClickExportButton())
         this.cleanButton.addEventListener("click", () => this.cleanDb());
     }
 
@@ -52,14 +55,35 @@ class Main {
         this.fileInput.value = "";
     }
 
+    handleClickExportButton() {
+        if (this.filterIsApplied) {
+            const params = this.prepareParamsForReport();
+            return this.makeExportRequest("/export/report?" + params);
+        }
+        this.makeExportRequest("/export/index");
+    }
+
+    handleResetFilterButton() {
+        this.resetFilter();
+        this.makeRequest({
+            url: "/",
+            options: {
+                method: "GET",
+            },
+            onSuccess: () => {
+                this.filterIsApplied = false;
+            }
+        })
+    }
+
     resetFilter() {
         this.inputName.value = "";
         this.levelSelectWrapper.querySelector('li.option[data-value=""]').click();
         this.positionSelectWrapper.querySelector('li.option[data-value=""]').click();
         this.destroyInstances();
         this.createInstances();
-        this.dateFromInput.value = ""
-        this.dateToInput.value = ""
+        this.dateFromInput.value = "";
+        this.dateToInput.value = "";
     }
 
     handleSubmitImportForm(event) {
@@ -68,8 +92,7 @@ class Main {
         this.importFile(formData);
     }
 
-    handleSubmitReportForm(event) {
-        event.preventDefault();
+    prepareParamsForReport() {
         const params = new URLSearchParams();
         const formData = new FormData(this.reportForm);
         Array.from(formData.entries()).forEach(field => {
@@ -78,7 +101,12 @@ class Main {
                 params.append(fieldName, value);
             }
         })
-        this.getReport(params.toString());
+        return params.toString();
+    }
+
+    handleSubmitReportForm(event) {
+        event.preventDefault();
+        this.getReport(this.prepareParamsForReport());
     }
 
     importFile(formData) {
@@ -92,6 +120,7 @@ class Main {
                 alert("Файл успешно импортирован");
                 this.cleanFileInput();
                 this.resetFilter();
+                this.filterIsApplied = false;
             },
             onError: () => alert("Ошибка импорта")
         })
@@ -103,6 +132,7 @@ class Main {
             options: {
                 method: "GET"
             },
+            onSuccess: () => this.filterIsApplied = true,
             onError: () => alert("Ошибка применения фильтра. Попробуйте позже")
         })
     }
@@ -132,6 +162,12 @@ class Main {
         })
         .catch(() => onError())
         .finally(() => this.setLoading(false))
+    }
+
+    makeExportRequest(url) {
+        const linkElement = document.createElement("a");
+        linkElement.href = url;
+        linkElement.click();
     }
 
     setLoading(state) {

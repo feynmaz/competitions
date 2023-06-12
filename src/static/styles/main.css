@@ -72,7 +72,10 @@ select {
     width: 100%;
 }
 
-.clean-button {
+.buttons {
+    display: flex;
+    gap: 16px;
+    align-items: center;
     margin: 24px 0 16px;
 }
 
