@@ -53,6 +53,21 @@ async def index(request: Request):
 async def export_index(request: Request):
     competitions = mongo.get_competitions()
     df = pd.DataFrame.from_records([comp.dict(by_alias=True) for comp in competitions])
+    df = df.reindex(
+        columns=[
+            'ФИО',
+            'Пол',
+            'Институт',
+            'Группа',
+            'Вид спорта',
+            'Дата',
+            'Уровень соревнований',
+            'Название соревнований',
+            'Место',
+            'Курс',
+            'Время создания записи',
+        ]
+    )
 
     now_str = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
     filename = f'Отчет_{now_str}.xlsx'

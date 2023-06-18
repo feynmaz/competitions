@@ -11,7 +11,7 @@ class Competition(Student):
     level: str = Field(alias='Уровень соревнований')
     name: str = Field(alias='Название соревнований')
     position: int = Field(alias='Место')
-    created_at: datetime = Field(default=datetime.now(), alias='Время создания записи')
+    created_at: datetime = Field(default=datetime.utcnow(), alias='Время создания записи')
 
     class Config:
         allow_population_by_field_name = True
