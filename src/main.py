@@ -52,7 +52,7 @@ async def index(request: Request):
 @app.get('/export/index')
 async def export_index(request: Request):
     competitions = mongo.get_competitions()
-    df = pd.DataFrame.from_records([comp.dict() for comp in competitions])
+    df = pd.DataFrame.from_records([comp.dict(by_alias=True) for comp in competitions])
 
     now_str = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
     filename = f'Отчет_{now_str}.xlsx'
@@ -117,7 +117,7 @@ async def get_report(request: Request):
 @app.get('/export/report')
 async def export_report(request: Request):
     student_infos = get_student_infos(request)
-    df = pd.DataFrame.from_records([info.dict() for info in student_infos])
+    df = pd.DataFrame.from_records([info.dict(by_alias=True) for info in student_infos])
 
     now_str = datetime.now().strftime('%d-%m-%Y_%H-%M-%S')
     filename = f'Отчет_{now_str}.xlsx'

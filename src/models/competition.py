@@ -1,13 +1,17 @@
 from datetime import datetime
 
+from pydantic import Field
+
 from src.models.student import Student
 
 
 class Competition(Student):
-    sport: str
-    date: datetime
-    level: str
-    name: str
-    position: int
-    course: int
-    created_at: datetime = datetime.now()
+    sport: str = Field(alias='Вид спорта')
+    date: datetime = Field(alias='Дата')
+    level: str = Field(alias='Уровень соревнований')
+    name: str = Field(alias='Название соревнований')
+    position: int = Field(alias='Место')
+    created_at: datetime = Field(default=datetime.now(), alias='Время создания записи')
+
+    class Config:
+        allow_population_by_field_name = True
