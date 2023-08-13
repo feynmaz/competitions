@@ -1,5 +1,9 @@
 tmp/*
-.vscode/*
 .env
+.idea/*
+venv
 
 *.pyc
+
+data/*
+!*.gitkeep

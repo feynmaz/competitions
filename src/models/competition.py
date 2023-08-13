@@ -1,17 +1,17 @@
-from typing import Optional
-from pydantic import BaseModel
 from datetime import datetime
 
+from pydantic import Field
 
-class Competition(BaseModel):
-    student_id: str
-    student_name: str
-    student_sex: Optional[str]
-    institute: str
-    group: str
-    sport: str
-    date: datetime
-    level: str
-    name: str
-    position: str
-    course: Optional[int]
+from src.models.student import Student
+
+
+class Competition(Student):
+    sport: str = Field(alias='Вид спорта')
+    date: datetime = Field(alias='Дата')
+    level: str = Field(alias='Уровень соревнований')
+    name: str = Field(alias='Название соревнований')
+    position: int = Field(alias='Место')
+    created_at: datetime = Field(default=datetime.utcnow(), alias='Время создания записи (UTC)')
+
+    class Config:
+        allow_population_by_field_name = True
