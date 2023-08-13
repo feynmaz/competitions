@@ -1,5 +1,10 @@
 # SIBADI Competitions
 
+## Technical
+- Backend built with [Sanic](https://sanic.dev/en/)
+- Templates built with [Jinja2](https://jinja.palletsprojects.com/en/3.1.x/) 
+- Frontend built with vanila JavaScript
+
 ## Development
 
 ### Linting
@@ -22,7 +27,7 @@ pre-commit run --all-files
 
 When linters are set, they now will be trigered any time you do commit. If there are any errors detected before commit, fix them, then do `git add .` and commit once again.
 
-## Agreements
+## Договоренности
 ### Порядок атрибутов
 На главной и в excel-файле: ФИО	Пол	Институт Группа Вид спорта Дата Уровень соревнований Название соревнований Место Курс
 
