@@ -1,4 +1,5 @@
 # SIBADI Competitions
+Сервис для учета участия в спортивных соревнованиях студентов [СибАДИ](https://sibadi.org/).
 
 ## Technical
 - Backend built with [Sanic](https://sanic.dev/en/)
